@@ -39,4 +39,4 @@ generated_plugin_registrant.dart
 # !lib/**  # Uncomment to include only `lib` folder
 
 node_modules/
-*/node_modules/
+flutter_backend/node_modules/
