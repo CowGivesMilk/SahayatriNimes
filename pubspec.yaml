@@ -16,7 +16,7 @@ dependencies:
   flutter_typeahead: ^5.2.0
   http: "^1.2.2"
   geolocator: ^9.0.1
-  image_picker: ^0.8.7+4 
+  image_picker: ^0.8.7+4
 
 dev_dependencies:
   flutter_test:
