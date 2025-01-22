@@ -1,0 +1,45 @@
+name: sahayatri
+description: "A new Flutter project."
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  permission_handler: "^11.3.1"
+  cupertino_icons: "^1.0.8"
+  flutter_typeahead: ^5.2.0
+  http: "^1.2.2"
+  geolocator: ^9.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: "^5.0.0"
+  flutter_launcher_icons: "^0.14.1"
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/fonts/
+    - assets/map.png
+    - assets/bus.png
+    - assets/Routes.csv
+    - assets/Bus.csv
+
+  fonts:
+    - family: Preahvihear
+      fonts:
+        - asset: assets/fonts/Preahvihear-Regular.ttf
+          weight: 700
+
+flutter_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/final.png"

@@ -1,0 +1,42 @@
+# Dart related files
+*.dart_tool/
+*.packages
+.packages
+.pub/
+build/
+coverage/
+
+# IntelliJ IDE files
+.idea/
+*.iml
+
+# VS Code files
+.vscode/
+
+# macOS files
+.DS_Store
+
+# Linux files
+*.so
+
+# Windows files
+*.dll
+
+# Flutter specific files
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-versions
+generated_plugin_registrant.dart
+
+# Logs
+*.log
+
+# Temporary files
+*.temp
+*.tmp
+
+# By default, exclude everything
+# !lib/**  # Uncomment to include only `lib` folder
+
+node_modules/
+*/node_modules/
