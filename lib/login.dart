@@ -4,21 +4,20 @@ import 'bubble_generator.dart';
 import 'dashboard.dart';
 import 'api_service.dart';
 
-
-class login extends StatefulWidget {
-  const login({super.key});
+class Login extends StatefulWidget {
+  const Login({super.key});
 
   @override
-  _loginState createState() => _loginState();
+  _LoginState createState() => _LoginState();
 }
 
-class _loginState extends State<login> {
+class _LoginState extends State<Login> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
   // Function to handle sign-in
-  void _LogIn() async {
+  void _logIn() async {
     setState(() => _isLoading = true); // Show loading indicator
     try {
       // Call the login function from the API service
@@ -29,13 +28,20 @@ class _loginState extends State<login> {
 
       // Show a success message using a snackbar
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Welcome, ${response['username']}!')),
+        SnackBar(content: Text('Welcome, ${response['name']}!')),
       );
 
       // Navigate to the Dashboard page on successful login
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const DashboardPage()),
+        MaterialPageRoute(
+          builder: (context) => DashboardPage(
+            userId: response['id'].toString(), // Convert id to String
+            name: response['name'],
+            email: response['email'],
+            picture: response['picture'],
+          ),
+        ),
       );
     } catch (error) {
       // Show an error message using a snackbar
@@ -47,16 +53,14 @@ class _loginState extends State<login> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,  // Disable resizing of the layout when the keyboard appears
-      backgroundColor: Colors.deepPurple[50], // Lighter purple background
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.deepPurple[50],
       body: Stack(
         children: [
           ...generateRandomBubbles(),
-          // Background decoration with a darker purple
           Positioned(
             top: -380,
             left: -231,
@@ -64,7 +68,7 @@ class _loginState extends State<login> {
               width: 700,
               height: 700,
               decoration: BoxDecoration(
-                color: Colors.deepPurple, // Dark purple background
+                color: Colors.deepPurple,
                 borderRadius: BorderRadius.circular(350),
               ),
             ),
@@ -81,8 +85,6 @@ class _loginState extends State<login> {
               ),
             ),
           ),
-
-          // Main content
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
@@ -100,14 +102,12 @@ class _loginState extends State<login> {
                   ),
                 ),
                 const SizedBox(height: 100),
-
-                // Email input field
                 TextField(
                   controller: _emailController,
                   decoration: InputDecoration(
                     hintText: 'Your Email',
                     filled: true,
-                    fillColor: Colors.deepPurple[100], // Light purple field color
+                    fillColor: Colors.deepPurple[100],
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20),
                       borderSide: BorderSide.none,
@@ -115,15 +115,13 @@ class _loginState extends State<login> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Password input field
                 TextField(
                   controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: 'Password',
                     filled: true,
-                    fillColor: Colors.deepPurple[100], // Light purple field color
+                    fillColor: Colors.deepPurple[100],
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20),
                       borderSide: BorderSide.none,
@@ -131,12 +129,10 @@ class _loginState extends State<login> {
                   ),
                 ),
                 const SizedBox(height: 40),
-
-                // Sign-In button with purple color
                 ElevatedButton(
-                  onPressed: _isLoading ? null : _LogIn,
+                  onPressed: _isLoading ? null : _logIn,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple, // Purple button
+                    backgroundColor: Colors.deepPurple,
                     padding: const EdgeInsets.all(15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -157,13 +153,11 @@ class _loginState extends State<login> {
                   ),
                 ),
                 const SizedBox(height: 100),
-
-                // Navigate to Sign-Up
                 TextButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                    MaterialPageRoute(builder: (context) => const SignUpPage()),
+                      MaterialPageRoute(builder: (context) => const SignUpPage()),
                     );
                   },
                   child: const Text(

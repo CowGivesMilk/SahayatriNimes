@@ -19,7 +19,7 @@ class SahayatriApp extends StatelessWidget {
       initialRoute: '/', // Define the initial route
       routes: {
         '/': (context) => const SahayatriHome(),
-        '/login': (context) => const login(),
+        '/login': (context) => const Login(),
         '/signup': (context) => const SignUpPage(),
         '/buslocation':(context)=> const BusLocationPage(),
       },

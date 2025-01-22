@@ -41,7 +41,7 @@ class _SignUpPageState extends State<SignUpPage> {
       // Navigate to the Sign-In page after successful sign-up
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const login()),
+        MaterialPageRoute(builder: (context) => const Login()),
       );
     } catch (error) {
       // Show an error message if the sign-up fails
@@ -194,7 +194,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const login()),
+                      MaterialPageRoute(builder: (context) => const Login()),
                     );
                   },
                   child: const Text(

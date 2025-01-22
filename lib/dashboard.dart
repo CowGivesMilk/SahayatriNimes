@@ -1,195 +1,143 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:flutter/services.dart';
-//import 'api_service.dart';  // You'll connect this to your backend
+import 'package:image_picker/image_picker.dart';
+import 'dart:io'; // For mobile file handling
+import 'dart:typed_data'; // For web file handling
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'api_service.dart';
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+  final String userId;
+  final String name;
+  final String email;
+  String? picture; // Keep it mutable for dynamic updates
+
+  DashboardPage({
+    super.key,
+    required this.userId,
+    required this.name,
+    required this.email,
+    this.picture,
+  });
 
   @override
   _DashboardPageState createState() => _DashboardPageState();
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  final TextEditingController _searchController = TextEditingController();
-  bool _isLoading = false;
+  File? _mobileProfilePicture; // For mobile
+  Uint8List? _webProfilePicture; // For web
 
-  // Placeholder data for categories and places
-  final List<String> categories = ['Hospital', 'Tourist Destination', 'Government Office'];
-  final List<String> places = ['Place 1', 'Place 2', 'Place 3'];
+  // Function to pick an image (handles web and mobile)
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-  // Function to search places
-  void _searchPlaces() async {
-    // Here you will connect to the backend to search from your database
-    // For now, we'll just print the search term
-    print('Searching for: ${_searchController.text}');
-  }
+    if (pickedFile != null) {
+      if (kIsWeb) {
+        // For Web: Read as bytes
+        final webImage = await pickedFile.readAsBytes();
+        setState(() {
+          _webProfilePicture = webImage;
+        });
 
-  // Function to show the user profile
-  Widget _userProfile() {
-    // Replace with real user data from your database
-    return Column(
-      children: [
-        CircleAvatar(radius: 30, backgroundImage: NetworkImage('https://www.example.com/user-profile.jpg')),
-        const SizedBox(height: 10),
-        Text('John Doe', style: TextStyle(color: Colors.white, fontSize: 18)),
-        Text('Trips: 5 | Loyalty: 200', style: TextStyle(color: Colors.white, fontSize: 14)),
-      ],
-    );
-  }
+        try {
+          await ApiService.updateProfilePicture(widget.userId, _webProfilePicture);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile picture updated successfully!')),
+          );
+          setState(() {
+            widget.picture = null; // Forces reload of picture
+          });
+        } catch (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update profile picture: $error')),
+          );
+        }
+      } else {
+        // For Mobile: Use File
+        final imageFile = File(pickedFile.path);
+        setState(() {
+          _mobileProfilePicture = imageFile;
+        });
 
-  // Function to show location categories as buttons
-  Widget _categoryButtons() {
-    return GridView.builder(
-      shrinkWrap: true,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-      ),
-      itemCount: categories.length,
-      itemBuilder: (context, index) {
-        return ElevatedButton(
-          onPressed: () {
-            // Here, you'd filter the places based on the category
-            // For now, just print the category selected
-            print('Category: ${categories[index]}');
-          },
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
-          child: Text(categories[index]),
-        );
-      },
-    );
-  }
-
-  // Function to show a list of places
-  Widget _placesList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: places.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(places[index]),
-          onTap: () {
-            // Handle click (e.g., show details about the place)
-            print('Selected Place: ${places[index]}');
-          },
-        );
-      },
-    );
+        try {
+          await ApiService.updateProfilePicture(widget.userId, _mobileProfilePicture!);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile picture updated successfully!')),
+          );
+          setState(() {
+            widget.picture = null; // Forces reload of picture
+          });
+        } catch (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update profile picture: $error')),
+          );
+        }
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Your Platform'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.location_on),
-            onPressed: () {
-              // Handle location icon click
-              print('Location icon clicked');
-            },
-          ),
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            UserAccountsDrawerHeader(
-              accountName: Text('John Doe'),
-              accountEmail: Text('john.doe@example.com'),
-              currentAccountPicture: CircleAvatar(
-                backgroundImage: NetworkImage('https://www.example.com/user-profile.jpg'),
-              ),
-            ),
-            ListTile(
-              title: Text('History'),
-              onTap: () => print('History tapped'),
-            ),
-            ListTile(
-              title: Text('Safety'),
-              onTap: () => print('Safety tapped'),
-            ),
-            ListTile(
-              title: Text('Settings'),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
-              ),
-            ),
-            ListTile(
-              title: Text('Help'),
-              onTap: () => print('Help tapped'),
-            ),
-            ListTile(
-              title: Text('Support'),
-              onTap: () => print('Support tapped'),
-            ),
-            Divider(),
-            ListTile(
-              title: Text('Facebook'),
-              onTap: () => print('Redirect to Facebook'),
-            ),
-            ListTile(
-              title: Text('Instagram'),
-              onTap: () => print('Redirect to Instagram'),
-            ),
-            ListTile(
-              title: Text('Website'),
-              onTap: () => print('Redirect to Website'),
-            ),
-          ],
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search places...',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: _searchPlaces,
-                ),
-              ),
-            ),
-            _categoryButtons(),
-            Expanded(child: _placesList()),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Settings Page for the settings option in the burger menu
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Settings')),
-      body: Padding(
+      appBar: AppBar(title: const Text('Dashboard')),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('Username: John Doe'),
-            Text('Email: john.doe@example.com'),
-            ElevatedButton(
-              onPressed: () => print('Change Password clicked'),
-              child: Text('Change Password'),
+            // Profile picture display
+            CircleAvatar(
+              radius: 50,
+              backgroundImage: widget.picture != null
+                  ? NetworkImage(widget.picture!)
+                  : null,
+              child: widget.picture == null
+                  ? IconButton(
+                icon: const Icon(Icons.add_a_photo, size: 30),
+                onPressed: _pickImage,
+              )
+                  : null,
             ),
-            Spacer(),
+            const SizedBox(height: 15),
+            // Name and email display
+            Text(
+              widget.name,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              widget.email,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+            const SizedBox(height: 20),
+            // Action buttons or any other content
             ElevatedButton(
-              onPressed: () => print('Logging out...'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: Text('Log Out'),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Feature Coming Soon!')),
+                );
+              },
+              child: const Text('View Saved Routes'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Feature Coming Soon!')),
+                );
+              },
+              child: const Text('Explore Nearby'),
+            ),
+            const SizedBox(height: 20),
+            // Logout button
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, // Updated button color property
+                foregroundColor: Colors.white, // Text color property
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Log out and return to previous screen
+              },
+              child: const Text('Log Out'),
             ),
           ],
         ),
