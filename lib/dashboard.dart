@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'api_service.dart';
+import 'main.dart';
 
 class DashboardPage extends StatefulWidget {
   final String userId;
@@ -229,7 +230,10 @@ class SettingsPage extends StatelessWidget {
             ),
             const Spacer(),
             ElevatedButton(
-              onPressed: () => print('Logging out...'),
+              onPressed: () {
+                // Navigate to main.dart
+                Navigator.pushReplacementNamed(context, '/');
+              },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               child: const Text('Log Out'),
             ),
