@@ -5,10 +5,9 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'api_service.dart';
 import 'main.dart';
+import 'emergency_page.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-import 'package:permission_handler/permission_handler.dart';
 
 class DashboardPage extends StatefulWidget {
   final String userId;
@@ -29,6 +28,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+
   final TextEditingController _searchController = TextEditingController();
   final List<String> categories = [
     'Hospital',
@@ -167,10 +167,9 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             ListTile(
               title: const Text('Additional Features'),
-              onTap: ()  => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AdditionalPage()),
-              ),
+              onTap: () {
+                Navigator.pushNamed(context, '/additional');
+              },
             ),
             ListTile(
               title: const Text('Settings'),
@@ -189,10 +188,9 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             ListTile(
               title: const Text('Emergency Services'),
-              onTap: () => Navigator.push(
-                context,
-                 MaterialPageRoute(builder: (context) => const EmergencyPage()),
-              ),
+              onTap: () {
+                Navigator.pushNamed(context, '/emergency');
+              },
             ),
             const Divider(),
             ListTile(
@@ -266,367 +264,6 @@ class SettingsPage extends StatelessWidget {
     );
   }
 }
-
-
-class EmergencyPage extends StatelessWidget {
-  const EmergencyPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Emergency Services')),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ElevatedButton(
-              onPressed: () async {
-                Uri uri = Uri.parse('tel:102');
-                if (!await launcher.launchUrl(uri)) {
-                  debugPrint("Could not launch the uri"); // because the simulator doesn't have the phone app
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple, // Button color changed to purple
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.max, // Make the Row take all available width
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Ambulance',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(width: 8), // Space between the text and the icon
-                  Icon(FontAwesomeIcons.ambulance, color: Colors.white),
-                ],
-              ),
-            ),
-
-
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                Uri uri = Uri.parse('tel:100');
-                if (!await launcher.launchUrl(uri)) {
-                  debugPrint("Could not launch the uri"); // because the simulator doesn't have the phone app
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple, // Button color changed to purple
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.max, // Make the Row take all available width
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Police',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(width: 8), // Space between the text and the icon
-                  Icon(FontAwesomeIcons.userShield, color: Colors.white),
-                ],
-              ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                Uri uri = Uri.parse('tel:101');
-                if (!await launcher.launchUrl(uri)) {
-                  debugPrint("Could not launch the uri"); // because the simulator doesn't have the phone app
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple, // Button color changed to purple
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.max, // Make the Row take all available width
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Fire Brigade',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(width: 8), // Space between the text and the icon
-                  Icon(FontAwesomeIcons.houseFire, color: Colors.white),
-                ],
-              ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                Uri uri = Uri.parse('tel:103');
-                if (!await launcher.launchUrl(uri)) {
-                  debugPrint("Could not launch the uri"); // because the simulator doesn't have the phone app
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple, // Button color changed to purple
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.max, // Make the Row take all available width
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Traffic Police',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(width: 8), // Space between the text and the icon
-                  Icon(FontAwesomeIcons.trafficLight, color: Colors.white),
-                ],
-              ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                Uri uri = Uri.parse('tel:1149');
-                if (!await launcher.launchUrl(uri)) {
-                  debugPrint("Could not launch the uri"); // because the simulator doesn't have the phone app
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple, // Button color changed to purple
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.max, // Make the Row take all available width
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Electricity Emergency',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(width: 8), // Space between the text and the icon
-                  Icon(FontAwesomeIcons.lightbulb, color: Colors.white),
-                ],
-              ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                Uri uri = Uri.parse('tel:9818201002');
-                if (!await launcher.launchUrl(uri)) {
-                  debugPrint("Could not launch the uri"); // because the simulator doesn't have the phone app
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple, // Button color changed to purple
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.max, // Make the Row take all available width
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Gas Leakage',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(width: 8), // Space between the text and the icon
-                  Icon(FontAwesomeIcons.warning, color: Colors.white),
-                ],
-              ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                Uri uri = Uri.parse('tel:1145');
-                if (!await launcher.launchUrl(uri)) {
-                  debugPrint("Could not launch the uri"); // because the simulator doesn't have the phone app
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple, // Button color changed to purple
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.max, // Make the Row take all available width
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Women And Child Protection',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(width: 8), // Space between the text and the icon
-                  Icon(FontAwesomeIcons.female, color: Colors.white),
-                  Icon(FontAwesomeIcons.child, color: Colors.white),
-                ],
-              ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                Uri uri = Uri.parse('tel:1166');
-                if (!await launcher.launchUrl(uri)) {
-                  debugPrint("Could not launch the uri"); // because the simulator doesn't have the phone app
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple, // Button color changed to purple
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.max, // Make the Row take all available width
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Suicidal Thoughts',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(width: 8), // Space between the text and the icon
-                  Icon(FontAwesomeIcons.sadCry, color: Colors.white),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
-class AdditionalPage extends StatelessWidget {
-  const AdditionalPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Additional features')),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            ElevatedButton(
-              onPressed: () =>
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const VehicleParkingPage()),
-                  ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple, // Button color changed to purple
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.max, // Make the Row take all available width
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Vehicle Parking',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(width: 8), // Space between the text and the icon
-                  Icon(FontAwesomeIcons.parking, color: Colors.white),
-                ],
-              ),
-            )
-
-
-
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
-
-
-class VehicleParkingPage extends StatelessWidget {
-  const VehicleParkingPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Vehicle Parking')),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            ElevatedButton(
-              onPressed: () =>
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AdditionalPage()),
-                ),
-
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple, // Button color changed to purple
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.max, // Make the Row take all available width
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Vehicle Parking',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(width: 8), // Space between the text and the icon
-                  Icon(FontAwesomeIcons.parking, color: Colors.white),
-                ],
-              ),
-            )
-
-
-
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 
 
 

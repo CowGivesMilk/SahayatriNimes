@@ -72,7 +72,7 @@ app.post('/signup', (req, res) => {
   });
 });
 
-
+//Admin panel for Parking Space
 app.post('/add-parking', (req, res) => {
   console.log(req.body);  // Log the received data
   const { parking_name, parking_space, used_parking_space, latitude, longitude, location } = req.body;
@@ -93,6 +93,20 @@ app.post('/add-parking', (req, res) => {
     res.send('Parking data added successfully');
   });
 });
+
+app.get('/get-parking-data', (req, res) => {
+  const query = 'SELECT * FROM vehicle_parking'; // Adjust query if needed
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error fetching data' });
+      return;
+    }
+    res.json(results); // Send the data as JSON
+  });
+});
+
+
 
 // Start Server
 app.listen(3000, () => console.log('Server running on port 3000'));

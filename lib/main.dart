@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'dashboard.dart';
 import 'login.dart';  // Import the login
 import 'signup.dart';  // Import the SignUpPage
 import 'buslocation.dart';
+import 'emergency_page.dart';
+import 'additional_services.dart';
+import 'parking.dart';
+import 'parking_details_page.dart';
 
 void main() {
   runApp(const SahayatriApp());
@@ -21,6 +26,9 @@ class SahayatriApp extends StatelessWidget {
         '/login': (context) => const Login(),
         '/signup': (context) => const SignUpPage(),
         '/buslocation':(context)=> const BusLocationPage(),
+        '/emergency': (context) => const EmergencyPage(),
+        '/parking': (context) => const VehicleParkingPage(),
+        '/additional': (context) => const AdditionalPage(),
       },
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,  // Change primary color to purple
