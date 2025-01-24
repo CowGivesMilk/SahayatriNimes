@@ -167,7 +167,10 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             ListTile(
               title: const Text('Additional Features'),
-              onTap: () => print('Additional Features'),
+              onTap: ()  => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AdditionalPage()),
+              ),
             ),
             ListTile(
               title: const Text('Settings'),
@@ -518,3 +521,120 @@ class EmergencyPage extends StatelessWidget {
     );
   }
 }
+
+
+class AdditionalPage extends StatelessWidget {
+  const AdditionalPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Additional features')),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            ElevatedButton(
+              onPressed: () =>
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const VehicleParkingPage()),
+                  ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple, // Button color changed to purple
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.max, // Make the Row take all available width
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Vehicle Parking',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
+                  SizedBox(width: 8), // Space between the text and the icon
+                  Icon(FontAwesomeIcons.parking, color: Colors.white),
+                ],
+              ),
+            )
+
+
+
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+class VehicleParkingPage extends StatelessWidget {
+  const VehicleParkingPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Vehicle Parking')),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            ElevatedButton(
+              onPressed: () =>
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AdditionalPage()),
+                ),
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple, // Button color changed to purple
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.max, // Make the Row take all available width
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Vehicle Parking',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
+                  SizedBox(width: 8), // Space between the text and the icon
+                  Icon(FontAwesomeIcons.parking, color: Colors.white),
+                ],
+              ),
+            )
+
+
+
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
