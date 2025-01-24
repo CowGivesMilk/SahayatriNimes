@@ -15,8 +15,11 @@ dependencies:
   cupertino_icons: "^1.0.8"
   flutter_typeahead: ^5.2.0
   http: "^1.2.2"
-  geolocator: ^9.0.1
-  image_picker: ^0.8.7+4
+  geolocator: ^13.0.2
+  image_picker: ^1.1.2
+  url_launcher: ^6.3.1
+  font_awesome_flutter: ^10.3.0
+
 
 dev_dependencies:
   flutter_test:
