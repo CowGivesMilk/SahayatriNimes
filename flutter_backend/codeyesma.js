@@ -7,6 +7,9 @@ const multer = require('multer');
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true })); // For form data
+
+
 
 // Configure file upload with multer
 const storage = multer.memoryStorage(); // Store file in memory
@@ -25,15 +28,7 @@ db.connect((err) => {
   console.log('Connected to MySQL');
 });
 
-// Sign Up Endpoint
-app.post('/signup', (req, res) => {
-  const { name, email, password } = req.body;
-  const query = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
-  db.query(query, [name, email, password], (err) => {
-    if (err) return res.status(500).json({ error: 'Sign Up Failed' });
-    res.json({ message: 'Sign Up Successful' });
-  });
-});
+
 
 // Login Endpoint
 app.post('/login', (req, res) => {
@@ -64,6 +59,38 @@ app.post('/updateProfilePicture', upload.single('picture'), (req, res) => {
   db.query(query, [pictureData, userId], (err) => {
     if (err) return res.status(500).json({ error: 'Failed to update picture' });
     res.json({ message: 'Picture updated successfully' });
+  });
+});
+
+// Sign Up Endpoint
+app.post('/signup', (req, res) => {
+  const { name, email, password } = req.body;
+  const query = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
+  db.query(query, [name, email, password], (err) => {
+    if (err) return res.status(500).json({ error: 'Sign Up Failed' });
+    res.json({ message: 'Sign Up Successful' });
+  });
+});
+
+
+app.post('/add-parking', (req, res) => {
+  console.log(req.body);  // Log the received data
+  const { parking_name, parking_space, used_parking_space, latitude, longitude, location } = req.body;
+
+  // Validate data before inserting into the database
+  if (!parking_name || !parking_space || !used_parking_space || !latitude || !longitude || !location) {
+    return res.status(400).send('All fields are required');
+  }
+
+  // Insert data into the database
+  const query = 'INSERT INTO vehicle_parking (parking_name, parking_space, used_parking_space, latitude, longitude, location) VALUES (?, ?, ?, ?, ?, ?)';
+
+  db.query(query, [parking_name, parking_space, used_parking_space, latitude, longitude, location], (err, results) => {
+    if (err) {
+      console.error('Error inserting data:', err);
+      return res.status(500).send('Failed to add parking data');
+    }
+    res.send('Parking data added successfully');
   });
 });
 
