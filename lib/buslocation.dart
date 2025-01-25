@@ -1,8 +1,10 @@
-import 'dart:async'; // Import dart:async for Timer
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'bubble_generator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class BusLocationPage extends StatefulWidget {
   const BusLocationPage({super.key});
@@ -15,9 +17,7 @@ class _BusLocationPageState extends State<BusLocationPage> {
   final _busNumberController = TextEditingController();
   final _driverNameController = TextEditingController();
   String? _selectedYatayat;
-
-  // Placeholder list for Yatayat names (replace with DB data)
-  final List<String> yatayatNames = ['Sajha Yatayat', 'Mayur Yatayat', 'Nepal Yatayat'];
+  List<String> yatayatNames = []; // Dynamically fetched list of Yatayat names
 
   String? _locationMessage = "Location not yet shared.";
   Timer? _locationTimer; // To hold the Timer reference
@@ -27,6 +27,26 @@ class _BusLocationPageState extends State<BusLocationPage> {
   Future<bool> _requestPermission() async {
     var status = await Permission.location.request();
     return status.isGranted;
+  }
+
+  // Fetch Yatayat data from the server
+  Future<void> _fetchYatayatNames() async {
+    const url = 'http://192.168.1.66:3000/get-yatayat-data'; // Replace with your server URL
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          yatayatNames = List<String>.from(data.map((item) => item['yatayat_name']));
+        });
+      } else {
+        throw Exception('Failed to fetch Yatayat data');
+      }
+    } catch (e) {
+      setState(() {
+        yatayatNames = ['Error fetching data']; // Display an error message
+      });
+    }
   }
 
   // Get the current location of the device
@@ -79,14 +99,19 @@ class _BusLocationPageState extends State<BusLocationPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _fetchYatayatNames(); // Fetch Yatayat names on initialization
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, // Disable resizing of the layout when the keyboard appears
-      backgroundColor: Colors.deepPurple[50], // Light purple background
+      resizeToAvoidBottomInset: true,
+      backgroundColor: Colors.deepPurple[50],
       body: Stack(
         children: [
           ...generateRandomBubbles(),
-          // Background decoration with a darker purple (same as main page)
           Positioned(
             top: -380,
             left: -231,
@@ -94,7 +119,7 @@ class _BusLocationPageState extends State<BusLocationPage> {
               width: 700,
               height: 700,
               decoration: BoxDecoration(
-                color: Colors.deepPurple, // Dark purple background
+                color: Colors.deepPurple,
                 borderRadius: BorderRadius.circular(350),
               ),
             ),
@@ -181,28 +206,11 @@ class _BusLocationPageState extends State<BusLocationPage> {
                 ),
                 const SizedBox(height: 40),
 
-                // Display the location message using RichText
-                RichText(
-                  text: TextSpan(
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: _locationMessage?.contains('Latitude') ?? false
-                            ? 'Latitude: ${_locationMessage?.split(',')[0].split(':')[1]?.trim()}'
-                            : '',
-                        style: TextStyle(color: Colors.black), // Black color for Latitude
-                      ),
-                      TextSpan(
-                        text: ', ',
-                        style: TextStyle(color: Colors.black), // Black color for separator
-                      ),
-                      TextSpan(
-                        text: _locationMessage?.contains('Longitude') ?? false
-                            ? 'Longitude: ${_locationMessage?.split(',')[1]?.split(':')[1]?.trim()}'
-                            : '',
-                        style: TextStyle(color: Colors.black), // Black color for Longitude
-                      ),
-                    ],
-                  ),
+                // Display the location message
+                Text(
+                  _locationMessage ?? 'Location not yet shared.',
+                  style: const TextStyle(fontSize: 16, color: Colors.black),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 30),
 
@@ -210,11 +218,11 @@ class _BusLocationPageState extends State<BusLocationPage> {
                 ElevatedButton(
                   onPressed: () {
                     if (_isSharingLocation) {
-                      _stopLocationUpdates(); // Stop sharing location
+                      _stopLocationUpdates();
                     } else {
-                      _startLocationUpdates(); // Start location updates
+                      _startLocationUpdates();
                       setState(() {
-                        _isSharingLocation = true; // Location sharing started
+                        _isSharingLocation = true;
                       });
                     }
                   },

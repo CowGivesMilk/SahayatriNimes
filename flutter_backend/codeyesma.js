@@ -128,5 +128,78 @@ app.post('/add-yatayat', (req, res) => {
   });
 });
 
+app.get('/get-yatayat-data', (req, res) => {
+  const query = 'SELECT * FROM yatayat'; // Query to fetch all rows from yatayat table
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching yatayat data:', err);
+      res.status(500).json({ message: 'Error fetching data' });
+      return;
+    }
+    res.json(results); // Send the data as JSON
+  });
+});
+
+
+// Insert vehicle data into bus table
+app.post('/add-vehicle', (req, res) => {
+    const { bus_number, vehicle_type, yatayat_id } = req.body;
+
+    if (!bus_number || !vehicle_type || !yatayat_id) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const query = 'INSERT INTO bus (bus_number, vehicle_type, yatayat_id) VALUES (?, ?, ?)';
+    db.query(query, [bus_number, vehicle_type, yatayat_id], (err, result) => {
+        if (err) {
+            console.error('Error inserting vehicle data:', err);
+            return res.status(500).json({ message: 'Error inserting vehicle data' });
+        }
+        res.status(201).json({ message: 'Vehicle added successfully' });
+    });
+});
+app.get('/get-bus-data', (req, res) => {
+  const query = 'SELECT * FROM bus'; // Query to fetch all rows from bus table
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching bus data:', err);
+      res.status(500).json({ message: 'Error fetching data' });
+      return;
+    }
+    res.json(results); // Send the data as JSON
+  });
+});
+
+//insert data in driver table
+
+app.post('/add-driver', (req, res) => {
+  const { driver_name, contact_number, license_number, yatayat_id, bus_id } = req.body;
+
+  // SQL query to insert driver data
+  const query = 'INSERT INTO driver (driver_name, contact_number, license_number, yatayat_id, bus_id) VALUES (?, ?, ?, ?, ?)';
+
+  db.query(query, [driver_name, contact_number, license_number, yatayat_id, bus_id], (err, results) => {
+    if (err) {
+      console.error('Error inserting driver data:', err);
+      res.status(500).json({ message: 'Error inserting driver data' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Driver added successfully!', driverId: results.insertId });
+  });
+});
+
+app.get('/get-buses-by-yatayat/:yatayatId', (req, res) => {
+    const yatayatId = req.params.yatayatId;
+    const query = 'SELECT * FROM bus WHERE yatayat_id = ?';
+    db.query(query, [yatayatId], (err, results) => {
+        if (err) {
+            console.error('Error fetching buses:', err);
+            res.status(500).json({ message: 'Error fetching buses' });
+            return;
+        }
+        res.json(results); // Send the bus data as JSON
+    });
+});
 // Start Server
 app.listen(3000, () => console.log('Server running on port 3000'));

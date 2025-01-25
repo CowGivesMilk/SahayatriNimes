@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Vehicle Details</title>
+    <style>
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: black; /* Default text color in dropdown */
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Add Vehicle Details</h1>
+    <form id="vehicleForm">
+        <label for="bus_number">Bus Number:</label>
+        <input type="number" id="bus_number" name="bus_number" required>
+
+        <label for="yatayat_name">Yatayat Name:</label>
+        <select id="yatayat_name" name="yatayat_name" required>
+            <option value="">Select Yatayat</option>
+            <!-- Dropdown options will be populated from the API -->
+        </select>
+
+        <label for="vehicle_type">Vehicle Type:</label>
+        <select id="vehicle_type" name="vehicle_type" required>
+            <option value="Bus">Bus</option>
+            <option value="E-Bus">E-Bus</option>
+            <option value="Mini-Bus">Mini-Bus</option>
+            <option value="Micro">Micro</option>
+            <option value="E-Micro">E-Micro</option>
+            <option value="Tempo">Tempo</option>
+        </select>
+
+        <button type="submit">Add Vehicle</button>
+    </form>
+
+    <script>
+        // Function to fetch Yatayat data from the server
+        async function fetchYatayatData() {
+            const url = 'http://192.168.1.66:3000/get-yatayat-data'; // Replace with your server URL
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                console.log('Fetched data:', data); // Log the data to check its structure
+                populateYatayatDropdown(data);
+            } catch (error) {
+                console.error('Error fetching Yatayat data:', error);
+                alert('Error fetching Yatayat data');
+            }
+        }
+
+        // Function to populate the Yatayat dropdown
+        function populateYatayatDropdown(yatayatData) {
+            const yatayatDropdown = document.getElementById('yatayat_name');
+            
+            // Clear any existing options
+            yatayatDropdown.innerHTML = '<option value="">Select Yatayat</option>';
+
+            // Populate the dropdown with Yatayat names and corresponding IDs
+            yatayatData.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id; // Use yatayat_id as value
+                option.textContent = item.yatayat_name; // Display yatayat_name as text
+                yatayatDropdown.appendChild(option);
+            });
+        }
+
+        // Call the fetch function when the page loads
+        window.onload = fetchYatayatData;
+
+        // Form submission event
+        document.getElementById('vehicleForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the form from submitting the default way
+            
+            const busNumber = document.getElementById('bus_number').value;
+            const yatayatName = document.getElementById('yatayat_name').value;
+            const vehicleType = document.getElementById('vehicle_type').value;
+
+            // Check if the Yatayat Name is selected
+            if (!yatayatName) {
+                alert('Please select a Yatayat name');
+                return;
+            }
+
+            // Create an object to send to the server
+            const vehicleData = {
+                bus_number: busNumber,
+                vehicle_type: vehicleType,
+                yatayat_id: yatayatName // Send yatayat_id (selected ID)
+            };
+
+            // Send the data to the server
+            try {
+                const response = await fetch('http://192.168.1.66:3000/add-vehicle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(vehicleData)
+                });
+
+                if (response.ok) {
+                    alert('Vehicle added successfully');
+                } else {
+                    alert('Error adding vehicle');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error adding vehicle');
+            }
+        });
+    </script>
+</body>
+</html>

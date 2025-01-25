@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Form</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Add Driver</h2>
+    <form id="driverForm" onsubmit="handleFormSubmit(event)">
+        <div>
+            <label for="driver_name">Driver Name:</label>
+            <input type="text" id="driver_name" name="driver_name" required>
+        </div>
+
+        <div>
+            <label for="contact_number">Contact Number:</label>
+            <input type="text" id="contact_number" name="contact_number" required>
+        </div>
+
+        <div>
+            <label for="license_number">License Number:</label>
+            <input type="text" id="license_number" name="license_number" required>
+        </div>
+
+        <div>
+            <label for="yatayat_id">Yatayat Name:</label>
+            <select id="yatayat_id" name="yatayat_id" required>
+                <option value="">Select Yatayat</option>
+                <!-- Yatayat options will be populated dynamically -->
+            </select>
+        </div>
+
+        <div>
+            <label for="bus_id">Bus Number:</label>
+            <select id="bus_id" name="bus_id" required>
+                <option value="">Select Bus</option>
+                <!-- Bus options will be populated dynamically -->
+            </select>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <button type="submit" class="btn">Add Driver</button>
+    </form>
+</div>
+
+<script>
+    async function handleFormSubmit(event) {
+        event.preventDefault();
+
+        const formData = {
+            driver_name: document.getElementById('driver_name').value,
+            contact_number: document.getElementById('contact_number').value,
+            license_number: document.getElementById('license_number').value,
+            yatayat_id: document.getElementById('yatayat_id').value,
+            bus_id: document.getElementById('bus_id').value,
+        };
+
+        try {
+            const response = await fetch('http://localhost:3000/add-driver', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+                alert('Driver added successfully!');
+                document.getElementById('driverForm').reset();
+            } else {
+                throw new Error('Error adding driver.');
+            }
+        } catch (error) {
+            document.getElementById('errorMessage').innerText = error.message;
+        }
+    }
+
+    // Fetch Yatayat Names for the dropdown
+    async function fetchYatayatNames() {
+        try {
+            const response = await fetch('http://localhost:3000/get-yatayat-data');
+            const yatayatData = await response.json();
+            const yatayatSelect = document.getElementById('yatayat_id');
+
+            yatayatData.forEach(yatayat => {
+                const option = document.createElement('option');
+                option.value = yatayat.id;
+                option.textContent = yatayat.yatayat_name;
+                yatayatSelect.appendChild(option);
+            });
+
+            // Fetch Bus Numbers based on Yatayat selection
+            yatayatSelect.addEventListener('change', async (event) => {
+                const yatayatId = event.target.value;
+                if (yatayatId) {
+                    try {
+                        const busResponse = await fetch(`http://localhost:3000/get-buses-by-yatayat/${yatayatId}`);
+                        const busData = await busResponse.json();
+                        const busSelect = document.getElementById('bus_id');
+                        busSelect.innerHTML = '<option value="">Select Bus</option>'; // Reset the bus dropdown
+
+                        busData.forEach(bus => {
+                            const busOption = document.createElement('option');
+                            busOption.value = bus.bus_id;
+                            busOption.textContent = bus.bus_number;
+                            busSelect.appendChild(busOption);
+                        });
+                    } catch (error) {
+                        console.error('Error fetching buses:', error);
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching yatayat names:', error);
+        }
+    }
+
+    // Load Yatayat Names on page load
+    window.onload = fetchYatayatNames;
+</script>
+
+</body>
+</html>
