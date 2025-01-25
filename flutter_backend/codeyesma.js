@@ -10,7 +10,6 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true })); // For form data
 
 
-
 // Configure file upload with multer
 const storage = multer.memoryStorage(); // Store file in memory
 const upload = multer({ storage });

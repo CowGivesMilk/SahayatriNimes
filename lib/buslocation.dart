@@ -14,24 +14,41 @@ class BusLocationPage extends StatefulWidget {
 }
 
 class _BusLocationPageState extends State<BusLocationPage> {
-  final _busNumberController = TextEditingController();
   final _driverNameController = TextEditingController();
   String? _selectedYatayat;
-  List<String> yatayatNames = []; // Dynamically fetched list of Yatayat names
+  String? _selectedBusNumber;
+  List<String> yatayatNames = [];
+  List<String> busNumbers = [];
+  String _locationMessage = "Location not yet shared.";
+  Timer? _locationTimer;
+  bool _isSharingLocation = false;
+  bool _isLoadingYatayat = false; // For loading Yatayat names
+  bool _isLoadingBuses = false;   // For loading buses for a selected Yatayat
 
-  String? _locationMessage = "Location not yet shared.";
-  Timer? _locationTimer; // To hold the Timer reference
-  bool _isSharingLocation = false; // To check if location sharing is active
+  @override
+  void initState() {
+    super.initState();
+    _fetchYatayatNames();
+  }
 
-  // Request permission for location
+  @override
+  void dispose() {
+    _locationTimer?.cancel();
+    _driverNameController.dispose();
+    super.dispose();
+  }
+
   Future<bool> _requestPermission() async {
     var status = await Permission.location.request();
     return status.isGranted;
   }
 
-  // Fetch Yatayat data from the server
   Future<void> _fetchYatayatNames() async {
-    const url = 'http://192.168.1.66:3000/get-yatayat-data'; // Replace with your server URL
+    setState(() {
+      _isLoadingYatayat = true; // Show loading for Yatayat names
+    });
+
+    const url = 'http://192.168.1.66:3000/get-yatayat-data';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -43,13 +60,55 @@ class _BusLocationPageState extends State<BusLocationPage> {
         throw Exception('Failed to fetch Yatayat data');
       }
     } catch (e) {
+      print('Error fetching Yatayat names: $e');
       setState(() {
-        yatayatNames = ['Error fetching data']; // Display an error message
+        yatayatNames = ['Error fetching data'];
+      });
+    } finally {
+      setState(() {
+        _isLoadingYatayat = false; // Hide loading indicator for Yatayat names
       });
     }
   }
 
-  // Get the current location of the device
+  Future<void> _fetchBusNumbers(String yatayatName) async {
+    setState(() {
+      _isLoadingBuses = true; // Show loading for buses
+    });
+
+    // Find the ID of the selected Yatayat
+    final yatayatId = yatayatNames.indexOf(yatayatName) + 1; // Assuming IDs start from 1
+
+    final url = 'http://192.168.1.66:3000/get-buses-by-yatayat/$yatayatId';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('Bus numbers response: $data'); // Debug print
+        if (data.isEmpty) {
+          setState(() {
+            busNumbers = ['No buses found'];
+          });
+        } else {
+          setState(() {
+            busNumbers = List<String>.from(data.map((item) => item['bus_number'].toString()));
+          });
+        }
+      } else {
+        throw Exception('Failed to fetch buses');
+      }
+    } catch (e) {
+      print('Error fetching buses: $e');
+      setState(() {
+        busNumbers = ['No buses found'];
+      });
+    } finally {
+      setState(() {
+        _isLoadingBuses = false; // Hide loading indicator for buses
+      });
+    }
+  }
+
   Future<void> _getLocation() async {
     bool permissionGranted = await _requestPermission();
 
@@ -74,34 +133,20 @@ class _BusLocationPageState extends State<BusLocationPage> {
     }
   }
 
-  // Start location updates every 2 seconds
   void _startLocationUpdates() {
     _locationTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
       _getLocation();
     });
   }
 
-  // Stop location updates
   void _stopLocationUpdates() {
     if (_locationTimer != null) {
       _locationTimer!.cancel();
       setState(() {
         _locationMessage = 'Location updates stopped.';
-        _isSharingLocation = false; // Stop sharing
+        _isSharingLocation = false;
       });
     }
-  }
-
-  @override
-  void dispose() {
-    _locationTimer?.cancel(); // Cancel the timer when the widget is disposed
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchYatayatNames(); // Fetch Yatayat names on initialization
   }
 
   @override
@@ -154,15 +199,26 @@ class _BusLocationPageState extends State<BusLocationPage> {
                 const SizedBox(height: 100),
 
                 // Yatayat Name Dropdown
-                DropdownButtonFormField<String>(
+                _isLoadingYatayat
+                    ? const CircularProgressIndicator() // Show loading indicator for Yatayat names
+                    : DropdownButtonFormField<String>(
+                  key: Key('yatayatDropdown'), // Unique Key
                   value: _selectedYatayat,
                   onChanged: (String? newValue) {
                     setState(() {
                       _selectedYatayat = newValue;
+                      _selectedBusNumber = null; // Reset the bus number when Yatayat changes
+                      busNumbers = []; // Reset bus numbers
                     });
+                    if (newValue != null) {
+                      _fetchBusNumbers(newValue); // Fetch buses based on selected Yatayat
+                    }
                   },
                   items: yatayatNames.map((String yatayat) {
-                    return DropdownMenuItem<String>(value: yatayat, child: Text(yatayat));
+                    return DropdownMenuItem<String>(
+                      value: yatayat,
+                      child: Text(yatayat),
+                    );
                   }).toList(),
                   decoration: InputDecoration(
                     hintText: 'Select Yatayat Name',
@@ -176,11 +232,25 @@ class _BusLocationPageState extends State<BusLocationPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // Bus Number input field
-                TextField(
-                  controller: _busNumberController,
+                // Bus Number Dropdown
+                _isLoadingBuses
+                    ? const CircularProgressIndicator() // Show loading indicator for buses
+                    : DropdownButtonFormField<String>(
+                  key: Key('busNumberDropdown'), // Unique Key
+                  value: _selectedBusNumber,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedBusNumber = newValue;
+                    });
+                  },
+                  items: busNumbers.map((String bus) {
+                    return DropdownMenuItem<String>(
+                      value: bus,
+                      child: Text(bus),
+                    );
+                  }).toList(),
                   decoration: InputDecoration(
-                    hintText: 'Bus Number',
+                    hintText: 'Select Bus Number',
                     filled: true,
                     fillColor: Colors.deepPurple[100],
                     border: OutlineInputBorder(
@@ -206,15 +276,15 @@ class _BusLocationPageState extends State<BusLocationPage> {
                 ),
                 const SizedBox(height: 40),
 
-                // Display the location message
+                // Location message
                 Text(
-                  _locationMessage ?? 'Location not yet shared.',
+                  _locationMessage,
                   style: const TextStyle(fontSize: 16, color: Colors.black),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 30),
 
-                // Toggle button to start/stop location sharing
+                // Share location button
                 ElevatedButton(
                   onPressed: () {
                     if (_isSharingLocation) {
@@ -242,7 +312,7 @@ class _BusLocationPageState extends State<BusLocationPage> {
                       ),
                       const SizedBox(width: 10),
                       Icon(
-                        _isSharingLocation ? Icons.warning : Icons.location_on,
+                        _isSharingLocation ? Icons.location_off : Icons.location_on,
                         color: Colors.white,
                       ),
                     ],
