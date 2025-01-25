@@ -106,7 +106,27 @@ app.get('/get-parking-data', (req, res) => {
   });
 });
 
+//Admin panel Yatayat name insert
+app.post('/add-yatayat', (req, res) => {
+  console.log(req.body);  // Log the received data
+  const { yatayat_name} = req.body;
 
+  // Validate data before inserting into the database
+  if (!yatayat_name) {
+    return res.status(400).send('All fields are required');
+  }
+
+  // Insert data into the database
+  const query = 'INSERT INTO yatayat (yatayat_name) VALUES (?)';
+
+  db.query(query, [yatayat_name], (err, results) => {
+    if (err) {
+      console.error('Error inserting data:', err);
+      return res.status(500).send('Failed to add Yatayat Data');
+    }
+    res.send('Yatayat Data added successfully');
+  });
+});
 
 // Start Server
 app.listen(3000, () => console.log('Server running on port 3000'));
